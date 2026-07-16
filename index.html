@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pawn RNG</title>
+    <title>Pawn RNG - Chess Edition</title>
     <style>
         /* Base Styling */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #121212;
+            background-color: #312e2b; /* Chess.com Dark Background */
             color: #ffffff;
             margin: 0;
             padding: 20px;
@@ -22,14 +22,14 @@
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 2.2rem;
             margin: 0 0 5px 0;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            font-weight: 800;
+            color: #ececd7;
         }
 
         .subtitle {
-            color: #888888;
+            color: #bababa;
             font-size: 0.95rem;
             margin: 0 0 25px 0;
         }
@@ -40,7 +40,7 @@
             flex-direction: column;
             gap: 20px;
             width: 100%;
-            max-width: 1100px;
+            max-width: 1200px;
             justify-content: center;
         }
 
@@ -52,23 +52,24 @@
         }
 
         .panel {
-            background-color: #1e1e1e;
-            border: 1px solid #333333;
-            border-radius: 12px;
+            background-color: #262421; /* Chess.com Panel Dark */
+            border: 1px solid #403c37;
+            border-radius: 8px;
             padding: 20px;
             box-sizing: border-box;
             flex: 1;
             min-width: 300px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .center-board-panel {
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex: 1.2;
+            flex: 1.4;
         }
 
-        /* LEFT PANEL: KINETIC WHEEL (NO BUTTON) */
+        /* LEFT PANEL: KINETIC WHEEL */
         .rng-container {
             display: flex;
             flex-direction: column;
@@ -76,25 +77,13 @@
             text-align: center;
         }
 
-        .roll-status-banner {
-            background-color: #2e1d1f;
-            border: 1px dashed #ff4757;
-            color: #ff6b81;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
         .ticker-viewport {
             position: relative;
             width: 100%;
             max-width: 260px;
             height: 80px;
-            background-color: #151515;
-            border: 2px solid #3d3d3d;
+            background-color: #151412;
+            border: 3px solid #403c37;
             border-radius: 8px;
             overflow: hidden;
             margin-bottom: 15px;
@@ -106,10 +95,10 @@
             top: 0;
             bottom: 0;
             width: 4px;
-            background-color: #ff4757;
+            background-color: #81b64c; /* Chess.com Green accent */
             transform: translateX(-50%);
             z-index: 10;
-            box-shadow: 0 0 8px #ff4757;
+            box-shadow: 0 0 8px #81b64c;
             pointer-events: none;
         }
 
@@ -130,17 +119,18 @@
             justify-content: center;
             font-size: 2.2rem;
             box-sizing: border-box;
-            border-right: 1px solid #252525;
-            background-color: #1a1a1a;
+            border-right: 1px solid #262421;
+            background-color: #1e1c1a;
             user-select: none;
         }
 
         .ticker-label-box {
-            font-size: 1rem;
-            color: #aaaaaa;
+            font-size: 0.9rem;
+            color: #bababa;
             margin-top: 5px;
-            min-height: 24px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         #pawn-name-display {
@@ -151,13 +141,18 @@
             transition: color 0.2s;
         }
 
-        /* CENTER PANEL: CHESSBOARD with Screenshake capability */
+        /* CENTER PANEL: CHESSBOARD (Chess.com Colors) */
         .board-instructions {
-            font-size: 0.85rem;
-            color: #aaaaaa;
+            background-color: #1e1c1a;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #bababa;
             margin-bottom: 15px;
             text-align: center;
-            line-height: 1.4;
+            width: 100%;
+            box-sizing: border-box;
+            border-left: 4px solid #81b64c;
         }
 
         .chessboard-wrapper {
@@ -168,25 +163,24 @@
             display: grid;
             grid-template-columns: repeat(8, 1fr);
             grid-template-rows: repeat(8, 1fr);
-            width: 320px;
-            height: 320px;
-            border: 4px solid #333333;
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            width: 340px;
+            height: 340px;
+            border: 4px solid #262421;
+            border-radius: 4px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.5);
             transition: transform 0.1s;
         }
 
         @media (min-width: 480px) {
             .chessboard {
-                width: 380px;
-                height: 380px;
+                width: 420px;
+                height: 420px;
             }
         }
 
         /* Screenshake class */
         .shake {
-            animation: shakeAnim 0.3s cubic-bezier(.36,.07,.19,.97) both;
-            transform: translate3d(0, 0, 0);
+            animation: shakeAnim 0.35s cubic-bezier(.36,.07,.19,.97) both;
         }
 
         @keyframes shakeAnim {
@@ -196,51 +190,95 @@
             40%, 60% { transform: translate3d(6px, 0, 0); }
         }
 
+        /* Chess.com Traditional Colors */
         .tile {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
             cursor: pointer;
             user-select: none;
             position: relative;
         }
 
-        .tile.light { background-color: #f0d9b5; }
-        .tile.dark { background-color: #b58863; }
+        .tile.light { background-color: #eeeed2; }
+        .tile.dark { background-color: #769656; }
         
+        /* Selected tile highlighting */
         .tile.selected {
-            background-color: #ffeb3b !important;
-        }
-        .tile.highlighted {
-            background-color: #8bc34a !important;
-            opacity: 0.9;
+            background-color: #f7f785 !important;
         }
 
-        /* Environmental Hazards overlays */
-        .tile.water::after {
-            content: "💧";
+        /* Chess.com Sleek Move Hint Dot */
+        .tile.highlighted::before {
+            content: "";
+            width: 24%;
+            height: 24%;
+            background-color: rgba(0, 0, 0, 0.15);
+            border-radius: 50%;
             position: absolute;
-            font-size: 1.2rem;
-            opacity: 0.85;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* Chess.com Sleek Capture Ring Hint */
+        .tile.highlighted.has-piece::before {
+            width: 80%;
+            height: 80%;
+            background: transparent;
+            border: 6px solid rgba(0, 0, 0, 0.15);
+            border-radius: 50%;
+        }
+
+        /* Pieces rendering */
+        .piece-img {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
             z-index: 2;
+            pointer-events: none;
+        }
+
+        .upgraded-emoji {
+            font-size: 1.8rem;
+            z-index: 4;
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
+        }
+
+        /* Environmental Hazards */
+        .tile.water::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(52, 152, 219, 0.4);
+            border: 2px solid #3498db;
+            z-index: 1;
+            pointer-events: none;
         }
 
         .tile.lava::after {
-            content: "🔥";
+            content: "";
             position: absolute;
-            font-size: 1.2rem;
-            opacity: 0.85;
-            z-index: 2;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(231, 76, 60, 0.45);
+            border: 2px solid #e74c3c;
+            z-index: 1;
+            pointer-events: none;
         }
 
         /* RIGHT PANEL: CHEST */
         .chest-header {
             font-size: 1.1rem;
             font-weight: bold;
-            border-bottom: 1px solid #333333;
+            border-bottom: 1px solid #403c37;
             padding-bottom: 8px;
             margin-bottom: 15px;
+            color: #ececd7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .chest-grid {
@@ -250,10 +288,10 @@
         }
 
         .chest-item {
-            background-color: #252525;
-            border: 1px solid #3e3e3e;
+            background-color: #1e1c1a;
+            border: 1px solid #403c37;
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -261,13 +299,12 @@
             transition: border-color 0.2s, background-color 0.2s;
         }
 
-        .chest-item.active-select {
-            border-color: #ffc107;
-            background-color: #2e2615;
+        .chest-item:hover {
+            border-color: #81b64c;
         }
 
         .item-quantity {
-            background-color: #3a3a3a;
+            background-color: #81b64c;
             color: #ffffff;
             font-size: 0.8rem;
             font-weight: bold;
@@ -275,38 +312,10 @@
             border-radius: 12px;
         }
 
-        /* Seagull Flight Animation Overlays */
-        .seagull-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 100;
-            display: none;
-        }
-
-        .seagull-sprite {
-            position: absolute;
-            font-size: 4rem;
-            transform: scaleX(-1); /* Facing left */
-            animation: flyAcross 2s linear forwards;
-        }
-
-        @keyframes flyAcross {
-            0% { left: 110vw; top: 30vh; }
-            50% { top: 45vh; }
-            100% { left: -20vw; top: 20vh; }
-        }
-
-        /* FULLSCREEN TUTORIAL SCREEN */
+        /* TUTORIAL MODAL */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-color: rgba(10, 10, 10, 0.95);
             z-index: 1000;
             display: flex;
@@ -316,9 +325,9 @@
         }
 
         .tutorial-box {
-            background-color: #1e1e1e;
-            border: 2px solid #ff4757;
-            border-radius: 16px;
+            background-color: #262421;
+            border: 2px solid #81b64c;
+            border-radius: 8px;
             max-width: 550px;
             width: 100%;
             padding: 30px;
@@ -329,7 +338,7 @@
 
         .tutorial-box h2 {
             font-size: 2.2rem;
-            color: #ff4757;
+            color: #81b64c;
             margin-top: 0;
         }
 
@@ -338,6 +347,7 @@
             margin: 20px 0 30px 0;
             font-size: 0.95rem;
             line-height: 1.6;
+            color: #bababa;
         }
 
         .rules-list li {
@@ -345,36 +355,36 @@
         }
 
         .play-button {
-            background-color: #2ed573;
+            background-color: #81b64c;
             color: #ffffff;
             border: none;
             padding: 16px 40px;
             font-size: 1.25rem;
             font-weight: bold;
-            border-radius: 10px;
+            border-radius: 4px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4);
-            transition: transform 0.1s, background-color 0.2s;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .play-button:hover {
+            background-color: #95cc5a;
         }
 
         .play-button:active {
             transform: scale(0.97);
         }
 
-        /* Promotion Picker Popup */
+        /* Promotion Modal */
         .promo-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.8);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.85);
             z-index: 100;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
+            border-radius: 4px;
             padding: 15px;
             text-align: center;
         }
@@ -388,13 +398,39 @@
         }
 
         .promo-btn {
-            background: #252525;
-            border: 1px solid #444;
+            background: #1e1c1a;
+            border: 1px solid #403c37;
             color: white;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 10px 15px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .promo-btn:hover {
+            border-color: #81b64c;
+        }
+
+        /* Seagull Overlay Animation */
+        .seagull-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+
+        .seagull-sprite {
+            position: absolute;
+            font-size: 4rem;
+            animation: flyAcross 1.8s linear forwards;
+        }
+
+        @keyframes flyAcross {
+            0% { left: 110vw; top: 20vh; }
+            50% { top: 40vh; }
+            100% { left: -20vw; top: 15vh; }
         }
     </style>
 </head>
@@ -403,13 +439,13 @@
     <!-- TUTORIAL SCREEN -->
     <div class="modal-overlay" id="tutorial-modal">
         <div class="tutorial-box">
-            <h2>♟️ Pawn RNG</h2>
-            <p style="color: #bbb;">Roll elements, evolve pawns, hijack the board.</p>
+            <h2>♟️ Pawn RNG: Chess.com Edition</h2>
+            <p style="color: #bababa;">Capture pieces with pawns, unlock rolls, and break standard rules.</p>
             <ul class="rules-list">
-                <li>⚔️ **Get Rolls:** Play classic chess against the bot. Every time one of your <strong>Pawns captures a Black piece</strong>, the elemental wheel automatically spins!</li>
-                <li>🌿 **No Store, No Cheating:** The manual roll button is disabled. You have to earn your weapons on the battlefield.</li>
-                <li>🧬 **Promotion Evolution:** Reach the far side with a pawn. Instead of choosing a Queen, you must promote them into one of your stocked Elemental Pawns!</li>
-                <li>🌪️ **Elemental Chaos:** Unleash Bread (40% Seagull steal), Water trails, Lava blockades, Titanium screenshakes, or board-scrambling Tornados.</li>
+                <li>⚔️ **Capture to Spin:** Play tactical chess against the smart bot. When any of your **White Pawns capture an enemy piece**, the RNG wheel spins!</li>
+                <li>🔄 **Move Backwards:** Upgraded elemental pawns are liberated! They can move **both forward and backward** to prevent getting stuck at the walls.</li>
+                <li>🧬 **Promotion Evolution:** Promote a pawn at Row 8 using stored elements in your Chest to spawn special units directly on the board.</li>
+                <li>🔥 **Overhauled Elements:** Spawn Bread (Seagull steal), Water trails, blocking Lava, shaking Titanium, or area-denying Tornados.</li>
             </ul>
             <button class="play-button" onclick="closeTutorial()">PLAY FIRST GAME</button>
         </div>
@@ -421,34 +457,26 @@
     </div>
 
     <h1>Pawn RNG</h1>
-    <p class="subtitle">Play normal chess, capture enemy pieces with your pawns to trigger spins!</p>
+    <p class="subtitle">Capture enemy pieces using White pawns to earn elemental powers!</p>
 
     <div class="game-container">
         
-        <!-- LEFT PANEL: THE SPINNER (AUTOMATIC ONLY) -->
+        <!-- LEFT PANEL: THE SPINNER -->
         <div class="panel">
             <div class="rng-container">
-                <div class="roll-status-banner">
-                    🔒 <strong>ROLL MANUAL LOCK</strong><br>
-                    Capture an enemy piece using any of your White pawns to unlock a spin!
-                </div>
-                
                 <div class="ticker-viewport">
                     <div class="ticker-pointer"></div>
-                    <div class="ticker-track" id="ticker-track">
-                        <!-- Items rendered dynamically -->
-                    </div>
+                    <div class="ticker-track" id="ticker-track"></div>
                 </div>
-
-                <div class="ticker-label-box">WHEEL PRIZE:</div>
+                <div class="ticker-label-box">LAST SPIN PRIZE:</div>
                 <div id="pawn-name-display">Awaiting Capture</div>
             </div>
         </div>
 
         <!-- CENTER PANEL: CHESSBOARD -->
-        <div class="panel center-board-panel" style="position: relative;">
+        <div class="panel center-board-panel">
             <div class="board-instructions" id="turn-banner">
-                ⚪ Your turn! Tap a white piece to view moves.
+                ⚪ Your turn! Select a piece to see Chess.com hint dots.
             </div>
             
             <div class="chessboard-wrapper">
@@ -456,8 +484,8 @@
                 
                 <!-- PROMOTION SELECTION MODAL -->
                 <div class="promo-overlay" id="promo-overlay">
-                    <h3 style="margin:0; font-size:1.1rem;">Evolve Pawn!</h3>
-                    <p style="font-size:0.8rem; margin:5px 0;">Pick an available element from your chest to apply:</p>
+                    <h3 style="margin:0; font-size:1.2rem; color:#81b64c;">Promote & Evolve Pawn!</h3>
+                    <p style="font-size:0.9rem; margin:8px 0; color:#bababa;">Consume an element from your chest to evolve this unit:</p>
                     <div class="promo-options" id="promo-options"></div>
                 </div>
             </div>
@@ -465,37 +493,48 @@
 
         <!-- RIGHT PANEL: CHEST INVENTORY -->
         <div class="panel">
-            <div class="chest-header">🧰 Chest Inventory</div>
+            <div class="chest-header">🧰 Your Chest</div>
             <div class="chest-grid" id="chest-ui"></div>
         </div>
 
     </div>
 
 <script>
-    // 1. Core Databases
+    // Asset Map - Using official Chess.com-style vectors
+    const pieceAssets = {
+        'P': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
+        'R': 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
+        'N': 'https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg',
+        'B': 'https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg',
+        'Q': 'https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg',
+        'K': 'https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg',
+        'p': 'https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg',
+        'r': 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg',
+        'n': 'https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg',
+        'b': 'https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg',
+        'q': 'https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg',
+        'k': 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg'
+    };
+
     const elementPool = [
-        { id: 'bread', name: "Bread", emoji: "🍞", weight: 35, color: "#d2b48c", rarity: "Common" },
-        { id: 'water', name: "Water", emoji: "💧", weight: 25, color: "#3498db", rarity: "Uncommon" },
-        { id: 'lava', name: "Lava", emoji: "🔥", weight: 20, color: "#e74c3c", rarity: "Epic" },
-        { id: 'tornado', name: "Tornado", emoji: "🌪️", weight: 12, color: "#9b59b6", rarity: "Rare" },
-        { id: 'titanium', name: "Titanium", emoji: "🛡️", weight: 8, color: "#95a5a6", rarity: "Legendary" }
+        { id: 'bread', name: "Bread", emoji: "🍞", weight: 35, color: "#d2b48c" },
+        { id: 'water', name: "Water", emoji: "💧", weight: 25, color: "#3498db" },
+        { id: 'lava', name: "Lava", emoji: "🔥", weight: 20, color: "#e74c3c" },
+        { id: 'tornado', name: "Tornado", emoji: "🌪️", weight: 12, color: "#9b59b6" },
+        { id: 'titanium', name: "Titanium", emoji: "🛡️", weight: 8, color: "#95a5a6" }
     ];
 
     const elementMap = elementPool.reduce((acc, el) => { acc[el.id] = el; return acc; }, {});
 
-    // Chest inventory
-    let chest = JSON.parse(localStorage.getItem('pawn_rng_chest_v3')) || {
-        bread: 0,
+    let chest = JSON.parse(localStorage.getItem('pawn_rng_chest_v4')) || {
+        bread: 1, // Start with one to let them try it out
         water: 0,
         lava: 0,
         tornado: 0,
         titanium: 0
     };
 
-    // 2. Chess Engine Setup
-    // Representation: Uppercase = White, Lowercase = Black
-    // 'P' = Pawn, 'R' = Rook, 'N' = Knight, 'B' = Bishop, 'Q' = Queen, 'K' = King
-    // Special upgraded elements are tracked separately in an environmental / custom pieces object
+    // Traditional Starting Board
     let board = [
         ['r','n','b','q','k','b','n','r'],
         ['p','p','p','p','p','p','p','p'],
@@ -507,19 +546,14 @@
         ['R','N','B','Q','K','B','N','R']
     ];
 
-    // Track active special pawn variants across the cells
     let specialBoardState = Array(64).fill(null); 
-    // Track board hazards (water trails, lava tiles)
-    // format: { index: { type: 'water' | 'lava', remainingTurns: N } }
-    let boardHazards = {};
-
+    let boardHazards = {}; // tracks { index: { type, remainingTurns } }
     let selectedTileIndex = null;
     let validMoves = [];
     let isSpinning = false;
     let promoPendingIndex = null;
-    let turn = 'white'; // white or black
+    let turn = 'white'; 
 
-    // Physics settings for ticker wheel
     const TICKER_ITEM_WIDTH = 80;
     const TICKER_VIEWPORT_WIDTH = 260;
     const TICKER_CENTER_OFFSET = TICKER_VIEWPORT_WIDTH / 2;
@@ -547,7 +581,7 @@
             `;
             grid.appendChild(item);
         });
-        localStorage.setItem('pawn_rng_chest_v3', JSON.stringify(chest));
+        localStorage.setItem('pawn_rng_chest_v4', JSON.stringify(chest));
     }
 
     function initializeTickerTrack() {
@@ -558,7 +592,7 @@
         track.innerHTML = `<div class="ticker-item">❓</div>`;
     }
 
-    // Capture Triggered Spins
+    // RNG Roller execution
     function triggerPawnCaptureRoll() {
         if (isSpinning) return;
         isSpinning = true;
@@ -601,7 +635,7 @@
 
         let animationFrameId;
         const startTime = performance.now();
-        const duration = 3000;
+        const duration = 2500; // Faster, punchier spin
 
         function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
@@ -626,10 +660,9 @@
                 animationFrameId = requestAnimationFrame(animate);
             } else {
                 cancelAnimationFrame(animationFrameId);
-                // Finalize
                 chest[winningItem.id]++;
                 updateChestUI();
-                nameDisplay.innerText = `🎉 Recieved ${winningItem.emoji} ${winningItem.name}!`;
+                nameDisplay.innerText = `🎉 Obtained ${winningItem.emoji} ${winningItem.name}!`;
                 nameDisplay.style.color = winningItem.color;
                 isSpinning = false;
             }
@@ -640,7 +673,7 @@
         animate();
     }
 
-    // Render Chessboard Tiles
+    // Chessboard Render
     function renderBoard() {
         const boardUI = document.getElementById("board-ui");
         boardUI.innerHTML = "";
@@ -653,12 +686,24 @@
             const tile = document.createElement("div");
             tile.className = `tile ${ (row + col) % 2 === 0 ? 'light' : 'dark' }`;
             
-            // Render Piece Symbol
+            // Piece Graphic Elements
             if (piece !== '') {
-                tile.innerText = getPieceRepresentation(piece, i);
+                tile.classList.add("has-piece");
+                const img = document.createElement("img");
+                img.src = pieceAssets[piece];
+                img.className = "piece-img";
+                tile.appendChild(img);
+
+                // Add Upgraded Elemental Badge
+                if (specialBoardState[i]) {
+                    const badge = document.createElement("div");
+                    badge.className = "upgraded-emoji";
+                    badge.innerText = elementMap[specialBoardState[i]].emoji;
+                    tile.appendChild(badge);
+                }
             }
 
-            // Render active hazards
+            // Hazards
             if (boardHazards[i]) {
                 tile.classList.add(boardHazards[i].type);
             }
@@ -671,39 +716,21 @@
         }
     }
 
-    function getPieceRepresentation(p, index) {
-        // If it's a special upgraded pawn, return the upgraded emoji
-        if (specialBoardState[index]) {
-            return elementMap[specialBoardState[index]].emoji;
-        }
-
-        const map = {
-            'P': '♙', 'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔',
-            'p': '♟', 'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚'
-        };
-        return map[p] || '';
-    }
-
-    // Handles Game Controls & Turn Executions
     function handleTileClick(row, col, index) {
-        if (turn !== 'white') return; // Wait for bot
+        if (turn !== 'white') return;
 
         const piece = board[row][col];
 
-        // 1. Handle Selection
         if (selectedTileIndex === null) {
             if (piece !== '' && piece === piece.toUpperCase()) {
                 selectedTileIndex = index;
                 validMoves = getValidMoves(index);
                 renderBoard();
             }
-        } 
-        // 2. Handle Move execution
-        else {
+        } else {
             if (validMoves.includes(index)) {
                 executeMove(selectedTileIndex, index);
             } else {
-                // Deselect or swap active piece
                 selectedTileIndex = null;
                 validMoves = [];
                 if (piece !== '' && piece === piece.toUpperCase()) {
@@ -724,113 +751,91 @@
         const activePiece = board[fromRow][fromCol];
         const targetPiece = board[toRow][toCol];
 
-        // CHECK PAWN CAPTURE -> TRIGGERS SPIN WHEEL
+        // Trigger RNG on capturing any piece with a pawn
         if (activePiece === 'P' && targetPiece !== '') {
             triggerPawnCaptureRoll();
         }
 
-        // Apply Hazards logic
         if (boardHazards[toIdx]) {
-            // Can't move onto active environmental tiles
             selectedTileIndex = null;
             validMoves = [];
             renderBoard();
             return;
         }
 
-        // Apply Special Elemental Pawn side effects when moving
+        // Apply Upgraded Power Execution
         const isSpecialPawn = specialBoardState[fromIdx];
         if (isSpecialPawn) {
             executeSpecialPawnAction(isSpecialPawn, fromIdx, toIdx);
         }
 
-        // Standard Chess Move
+        // Standard Movement Execution
         board[toRow][toCol] = activePiece;
         board[fromRow][fromCol] = '';
 
-        // Transfer upgraded status to new board index
         specialBoardState[toIdx] = specialBoardState[fromIdx];
         specialBoardState[fromIdx] = null;
 
-        // Reset variables
         selectedTileIndex = null;
         validMoves = [];
 
-        // Check if pawn reached the end (Promotion)
+        // Evolve/Promote at Row 0 (far end for White)
         if (activePiece === 'P' && toRow === 0) {
             triggerPawnPromotion(toIdx);
-            return; // turn swaps after selecting element
+            return;
         }
 
-        // Progress environmental hazard timers
         tickHazards();
-
         renderBoard();
         
-        // Pass turn to Bot
         turn = 'black';
-        document.getElementById("turn-banner").innerText = "⚫ Opponent is calculating...";
-        setTimeout(botTurn, 1000);
+        document.getElementById("turn-banner").innerText = "⚫ Bot is scanning board...";
+        setTimeout(botTurn, 800);
     }
 
-    // Special Powers Engine
     function executeSpecialPawnAction(type, fromIdx, toIdx) {
         if (type === 'water') {
-            // Water trail stays for 1 turn
             boardHazards[fromIdx] = { type: 'water', remainingTurns: 1 };
         } 
         else if (type === 'lava') {
-            // Lava trial stays for 2 turns
             boardHazards[fromIdx] = { type: 'lava', remainingTurns: 2 };
         } 
         else if (type === 'bread') {
-            // 40% chance of a flying seagull stealing the pawn
             if (Math.random() < 0.40) {
                 triggerSeagullTheft(toIdx);
             }
         } 
         else if (type === 'titanium') {
-            // Shake the screen
             const chessboard = document.getElementById("board-ui");
             chessboard.classList.add("shake");
-            setTimeout(() => chessboard.classList.remove("shake"), 400);
+            setTimeout(() => chessboard.classList.remove("shake"), 350);
         }
         else if (type === 'tornado') {
-            // Scrambles the pieces in 3x3 into the 5x5 boundary
             triggerTornadoScramble(toIdx);
         }
     }
 
-    // Bread's Gull Animation
     function triggerSeagullTheft(idx) {
         const row = Math.floor(idx / 8);
         const col = idx % 8;
         const gullLayer = document.getElementById("gull-layer");
-        const gull = document.getElementById("gull-sprite");
-
         gullLayer.style.display = "block";
         
         setTimeout(() => {
-            // Delete piece off board mid-flight
             board[row][col] = '';
             specialBoardState[idx] = null;
             renderBoard();
-        }, 1000);
+        }, 900);
 
-        setTimeout(() => {
-            gullLayer.style.display = "none";
-        }, 2000);
+        setTimeout(() => { gullLayer.style.display = "none"; }, 1800);
     }
 
-    // Tornado 3x3 to 5x5 scramble
     function triggerTornadoScramble(centerIdx) {
         const centerRow = Math.floor(centerIdx / 8);
         const centerCol = centerIdx % 8;
-
         let piecesToMove = [];
         let freeSlots = [];
 
-        // Identify inner 3x3 and gather pieces, and outer 5x5 for deployment
         for (let r = centerRow - 2; r <= centerRow + 2; r++) {
             for (let c = centerCol - 2; c <= centerCol + 2; c++) {
                 if (r >= 0 && r < 8 && c >= 0 && c < 8) {
@@ -839,27 +844,18 @@
                     
                     if (isInner) {
                         if (board[r][c] !== '') {
-                            piecesToMove.push({
-                                piece: board[r][c],
-                                special: specialBoardState[currentIdx]
-                            });
+                            piecesToMove.push({ piece: board[r][c], special: specialBoardState[currentIdx] });
                             board[r][c] = '';
                             specialBoardState[currentIdx] = null;
                         }
                     } else {
-                        // Outer rings are landing targets
-                        if (board[r][c] === '') {
-                            freeSlots.push(currentIdx);
-                        }
+                        if (board[r][c] === '') freeSlots.push(currentIdx);
                     }
                 }
             }
         }
 
-        // Shuffle up open landing spots
         freeSlots.sort(() => Math.random() - 0.5);
-
-        // Place them in new random locations
         piecesToMove.forEach((pObj) => {
             if (freeSlots.length > 0) {
                 const targetIdx = freeSlots.pop();
@@ -880,31 +876,28 @@
         }
     }
 
-    // Upgraded Pawn Selection Screen on Row 8
     function triggerPawnPromotion(index) {
         promoPendingIndex = index;
         const overlay = document.getElementById("promo-overlay");
         const optionsDiv = document.getElementById("promo-options");
         optionsDiv.innerHTML = "";
 
-        // Collect list of available items from chest
         let availableCount = 0;
         elementPool.forEach((el) => {
             if (chest[el.id] > 0) {
                 availableCount++;
                 const btn = document.createElement("button");
                 btn.className = "promo-btn";
-                btn.innerHTML = `${el.emoji} Use ${el.name} (Have ${chest[el.id]})`;
+                btn.innerHTML = `${el.emoji} Evolve (${chest[el.id]} left)`;
                 btn.onclick = () => selectPromotionElement(el.id);
                 optionsDiv.appendChild(btn);
             }
         });
 
-        // Fallback: If chest is completely empty, you have to stay a regular pawn
         if (availableCount === 0) {
             const btn = document.createElement("button");
             btn.className = "promo-btn";
-            btn.innerText = "Keep Standard Pawn (No items in Chest)";
+            btn.innerText = "Keep Standard Pawn";
             btn.onclick = () => {
                 overlay.style.display = "none";
                 turn = 'black';
@@ -927,35 +920,50 @@
         renderBoard();
 
         turn = 'black';
-        document.getElementById("turn-banner").innerText = "⚫ Opponent is calculating...";
-        setTimeout(botTurn, 1000);
+        document.getElementById("turn-banner").innerText = "⚫ Bot is scanning board...";
+        setTimeout(botTurn, 800);
     }
 
-    // Basic Chess Rule Engine for Selection movements
+    // Rules Evaluation Engine
     function getValidMoves(idx) {
         const r = Math.floor(idx / 8);
         const c = idx % 8;
         const p = board[r][c];
         const moves = [];
 
-        // Basic Pawn movement engine rules
-        if (p === 'P') {
-            // Forward movement
+        const isUpgraded = specialBoardState[idx] !== null;
+
+        if (p === 'P') { // White Pawn
+            // Forward Moves
             if (r > 0 && board[r-1][c] === '') {
                 moves.push((r-1)*8 + c);
                 if (r === 6 && board[r-2][c] === '') {
                     moves.push((r-2)*8 + c);
                 }
             }
-            // Standard captures
-            if (r > 0 && c > 0 && board[r-1][c-1] !== '' && board[r-1][c-1] === board[r-1][c-1].toLowerCase()) {
-                moves.push((r-1)*8 + (c-1));
+            // UPGRADED PAWNS CAN MOVE BACKWARDS! (Allows moving 1 step backward if empty)
+            if (isUpgraded && r < 7 && board[r+1][c] === '') {
+                moves.push((r+1)*8 + c);
             }
-            if (r > 0 && c < 7 && board[r-1][c+1] !== '' && board[r-1][c+1] === board[r-1][c+1].toLowerCase()) {
-                moves.push((r-1)*8 + (c+1));
-            }
+
+            // Standard Diagonal Captures (and backward captures if upgraded)
+            const forwardRows = [r-1];
+            if (isUpgraded) forwardRows.push(r+1); // Bidirectional capture
+
+            forwardRows.forEach(nr => {
+                if (nr >= 0 && nr < 8) {
+                    [c-1, c+1].forEach(nc => {
+                        if (nc >= 0 && nc < 8) {
+                            const target = board[nr][nc];
+                            if (target !== '' && target === target.toLowerCase()) {
+                                moves.push(nr*8 + nc);
+                            }
+                        }
+                    });
+                }
+            });
         } 
-        else if (p === 'p') { // Bot Pawn
+        else if (p === 'p') { // Black Pawn (Bot)
             if (r < 7 && board[r+1][c] === '') {
                 moves.push((r+1)*8 + c);
                 if (r === 1 && board[r+2][c] === '') {
@@ -970,7 +978,6 @@
             }
         }
         else if (p === 'R' || p === 'r') {
-            // Orthogonal lines
             const dirs = [[1,0], [-1,0], [0,1], [0,-1]];
             dirs.forEach(([dr, dc]) => {
                 let nr = r + dr, nc = c + dc;
@@ -988,7 +995,6 @@
             });
         }
         else if (p === 'B' || p === 'b') {
-            // Diagonals
             const dirs = [[1,1], [1,-1], [-1,1], [-1,-1]];
             dirs.forEach(([dr, dc]) => {
                 let nr = r + dr, nc = c + dc;
@@ -1047,13 +1053,13 @@
             });
         }
 
-        // Filter out targets occupied by environmental tiles (water / lava)
+        // Filter out environmental hazard positions
         return moves.filter(idx => !boardHazards[idx]);
     }
 
-    // AI/Bot Turn Mechanics
+    // SMART BOT DECISION BRAIN
+    // Moves prioritized by captures first, then standard defensive path finding
     function botTurn() {
-        // Collect all available legal moves for black pieces
         const blackPieces = [];
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
@@ -1062,40 +1068,70 @@
                     const index = r * 8 + c;
                     const moves = getValidMoves(index);
                     if (moves.length > 0) {
-                        blackPieces.push({ from: index, moves: moves });
+                        blackPieces.push({ from: index, piece, moves });
                     }
                 }
             }
         }
 
-        // Check if there are moves left. If none, player wins/draws
         if (blackPieces.length === 0) {
             document.getElementById("turn-banner").innerText = "🏆 Checkmate/Stalemate! You Win!";
             return;
         }
 
-        // Choose a random move
-        const choice = blackPieces[Math.floor(Math.random() * blackPieces.length)];
-        const fromIdx = choice.from;
-        const toIdx = choice.moves[Math.floor(Math.random() * choice.moves.length)];
+        let chosenMove = null;
+        let highestValue = -1;
 
-        const fRow = Math.floor(fromIdx / 8);
-        const fCol = fromIdx % 8;
-        const tRow = Math.floor(toIdx / 8);
-        const tCol = toIdx % 8;
+        const pieceWeights = { 'P': 10, 'N': 30, 'B': 30, 'R': 50, 'Q': 90, 'K': 900 };
 
-        // Perform Move
+        // Evaluate all legal options for captures first (Smart Defense)
+        for (let pieceInfo of blackPieces) {
+            for (let targetIndex of pieceInfo.moves) {
+                const targetPiece = board[Math.floor(targetIndex / 8)][targetIndex % 8];
+                let value = 0;
+
+                // Priority 1: Captures
+                if (targetPiece !== '') {
+                    value += pieceWeights[targetPiece.toUpperCase()] || 10;
+                    // Extra value if capturing player's special upgraded pawn!
+                    if (specialBoardState[targetIndex]) value += 50;
+                }
+
+                // Priority 2: Standard Pawn pushes forward
+                if (pieceInfo.piece === 'p') {
+                    value += 2; 
+                }
+
+                if (value > highestValue) {
+                    highestValue = value;
+                    chosenMove = { from: pieceInfo.from, to: targetIndex };
+                }
+            }
+        }
+
+        // Fallback to random if no capturing moves available
+        if (!chosenMove || highestValue <= 2) {
+            const choice = blackPieces[Math.floor(Math.random() * blackPieces.length)];
+            chosenMove = {
+                from: choice.from,
+                to: choice.moves[Math.floor(Math.random() * choice.moves.length)]
+            };
+        }
+
+        const fRow = Math.floor(chosenMove.from / 8);
+        const fCol = chosenMove.from % 8;
+        const tRow = Math.floor(chosenMove.to / 8);
+        const tCol = chosenMove.to % 8;
+
+        // Execute Bot Move
         board[tRow][tCol] = board[fRow][fCol];
         board[fRow][fCol] = '';
 
-        // Clean any hazards
         tickHazards();
-
         renderBoard();
 
-        // Swap Turn back
         turn = 'white';
-        document.getElementById("turn-banner").innerText = "⚪ Your turn! Tap a white piece to view moves.";
+        document.getElementById("turn-banner").innerText = "⚪ Your turn! Select a piece to see Chess.com hint dots.";
     }
 </script>
 
