@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pawn RNG - Chess Edition</title>
+    <title>Pawn RNG</title>
     <style>
         /* Base Styling */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #312e2b; /* Chess.com Dark Background */
+            background-color: #1e1b18; /* Warm Dark Background */
             color: #ffffff;
             margin: 0;
             padding: 20px;
@@ -25,7 +25,8 @@
             font-size: 2.2rem;
             margin: 0 0 5px 0;
             font-weight: 800;
-            color: #ececd7;
+            color: #f5f2eb;
+            letter-spacing: 0.5px;
         }
 
         .subtitle {
@@ -52,8 +53,8 @@
         }
 
         .panel {
-            background-color: #262421; /* Chess.com Panel Dark */
-            border: 1px solid #403c37;
+            background-color: #2b2522; /* Warm Panel Dark */
+            border: 1px solid #423833;
             border-radius: 8px;
             padding: 20px;
             box-sizing: border-box;
@@ -82,8 +83,8 @@
             width: 100%;
             max-width: 260px;
             height: 80px;
-            background-color: #151412;
-            border: 3px solid #403c37;
+            background-color: #1a1614;
+            border: 3px solid #423833;
             border-radius: 8px;
             overflow: hidden;
             margin-bottom: 15px;
@@ -95,10 +96,10 @@
             top: 0;
             bottom: 0;
             width: 4px;
-            background-color: #81b64c; /* Chess.com Green accent */
+            background-color: #800020; /* Burgundy pointer */
             transform: translateX(-50%);
             z-index: 10;
-            box-shadow: 0 0 8px #81b64c;
+            box-shadow: 0 0 8px #800020;
             pointer-events: none;
         }
 
@@ -119,8 +120,8 @@
             justify-content: center;
             font-size: 2.2rem;
             box-sizing: border-box;
-            border-right: 1px solid #262421;
-            background-color: #1e1c1a;
+            border-right: 1px solid #2b2522;
+            background-color: #221d1a;
             user-select: none;
         }
 
@@ -141,9 +142,9 @@
             transition: color 0.2s;
         }
 
-        /* CENTER PANEL: CHESSBOARD (Chess.com Colors) */
+        /* CENTER PANEL: CHESSBOARD (Burgundy & Cream) */
         .board-instructions {
-            background-color: #1e1c1a;
+            background-color: #221d1a;
             padding: 10px 15px;
             border-radius: 5px;
             font-size: 0.9rem;
@@ -152,7 +153,7 @@
             text-align: center;
             width: 100%;
             box-sizing: border-box;
-            border-left: 4px solid #81b64c;
+            border-left: 4px solid #800020; /* Burgundy accent stripe */
         }
 
         .chessboard-wrapper {
@@ -165,7 +166,7 @@
             grid-template-rows: repeat(8, 1fr);
             width: 340px;
             height: 340px;
-            border: 4px solid #262421;
+            border: 4px solid #2b2522;
             border-radius: 4px;
             box-shadow: 0 12px 36px rgba(0,0,0,0.5);
             transition: transform 0.1s;
@@ -190,7 +191,7 @@
             40%, 60% { transform: translate3d(6px, 0, 0); }
         }
 
-        /* Chess.com Traditional Colors */
+        /* Burgundy and Cream Board Setup */
         .tile {
             display: flex;
             align-items: center;
@@ -200,32 +201,32 @@
             position: relative;
         }
 
-        .tile.light { background-color: #eeeed2; }
-        .tile.dark { background-color: #769656; }
+        .tile.light { background-color: #f5f2eb; } /* Elegant Cream */
+        .tile.dark { background-color: #800020; }  /* Royal Burgundy */
         
-        /* Selected tile highlighting */
+        /* Selected tile highlighting - Warm gold overlay */
         .tile.selected {
-            background-color: #f7f785 !important;
+            background-color: rgba(212, 175, 55, 0.5) !important;
         }
 
-        /* Chess.com Sleek Move Hint Dot */
+        /* Custom Sleek Move Hint Dot (Slate Gray) */
         .tile.highlighted::before {
             content: "";
             width: 24%;
             height: 24%;
-            background-color: rgba(0, 0, 0, 0.15);
+            background-color: rgba(44, 62, 80, 0.4);
             border-radius: 50%;
             position: absolute;
             z-index: 3;
             pointer-events: none;
         }
 
-        /* Chess.com Sleek Capture Ring Hint */
+        /* Custom Sleek Capture Ring Hint (Slate Gray) */
         .tile.highlighted.has-piece::before {
             width: 80%;
             height: 80%;
             background: transparent;
-            border: 6px solid rgba(0, 0, 0, 0.15);
+            border: 6px solid rgba(44, 62, 80, 0.4);
             border-radius: 50%;
         }
 
@@ -272,10 +273,10 @@
         .chest-header {
             font-size: 1.1rem;
             font-weight: bold;
-            border-bottom: 1px solid #403c37;
+            border-bottom: 1px solid #423833;
             padding-bottom: 8px;
             margin-bottom: 15px;
-            color: #ececd7;
+            color: #f5f2eb;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -288,8 +289,8 @@
         }
 
         .chest-item {
-            background-color: #1e1c1a;
-            border: 1px solid #403c37;
+            background-color: #221d1a;
+            border: 1px solid #423833;
             padding: 12px;
             border-radius: 6px;
             display: flex;
@@ -300,11 +301,11 @@
         }
 
         .chest-item:hover {
-            border-color: #81b64c;
+            border-color: #800020;
         }
 
         .item-quantity {
-            background-color: #81b64c;
+            background-color: #800020;
             color: #ffffff;
             font-size: 0.8rem;
             font-weight: bold;
@@ -325,8 +326,8 @@
         }
 
         .tutorial-box {
-            background-color: #262421;
-            border: 2px solid #81b64c;
+            background-color: #2b2522;
+            border: 2px solid #800020;
             border-radius: 8px;
             max-width: 550px;
             width: 100%;
@@ -338,7 +339,7 @@
 
         .tutorial-box h2 {
             font-size: 2.2rem;
-            color: #81b64c;
+            color: #f5f2eb;
             margin-top: 0;
         }
 
@@ -355,7 +356,7 @@
         }
 
         .play-button {
-            background-color: #81b64c;
+            background-color: #800020;
             color: #ffffff;
             border: none;
             padding: 16px 40px;
@@ -367,7 +368,7 @@
         }
 
         .play-button:hover {
-            background-color: #95cc5a;
+            background-color: #9a0028;
         }
 
         .play-button:active {
@@ -398,8 +399,8 @@
         }
 
         .promo-btn {
-            background: #1e1c1a;
-            border: 1px solid #403c37;
+            background: #221d1a;
+            border: 1px solid #423833;
             color: white;
             padding: 10px 15px;
             border-radius: 4px;
@@ -409,7 +410,7 @@
         }
 
         .promo-btn:hover {
-            border-color: #81b64c;
+            border-color: #800020;
         }
 
         /* Seagull Overlay Animation */
@@ -439,7 +440,7 @@
     <!-- TUTORIAL SCREEN -->
     <div class="modal-overlay" id="tutorial-modal">
         <div class="tutorial-box">
-            <h2>♟️ Pawn RNG: Chess.com Edition</h2>
+            <h2 style="color: #800020;">♟️ Pawn RNG</h2>
             <p style="color: #bababa;">Capture pieces with pawns, unlock rolls, and break standard rules.</p>
             <ul class="rules-list">
                 <li>⚔️ **Capture to Spin:** Play tactical chess against the smart bot. When any of your **White Pawns capture an enemy piece**, the RNG wheel spins!</li>
@@ -476,7 +477,7 @@
         <!-- CENTER PANEL: CHESSBOARD -->
         <div class="panel center-board-panel">
             <div class="board-instructions" id="turn-banner">
-                ⚪ Your turn! Select a piece to see Chess.com hint dots.
+                ⚪ Your turn! Select a piece to see move indicator dots.
             </div>
             
             <div class="chessboard-wrapper">
@@ -484,7 +485,7 @@
                 
                 <!-- PROMOTION SELECTION MODAL -->
                 <div class="promo-overlay" id="promo-overlay">
-                    <h3 style="margin:0; font-size:1.2rem; color:#81b64c;">Promote & Evolve Pawn!</h3>
+                    <h3 style="margin:0; font-size:1.2rem; color:#800020;">Promote & Evolve Pawn!</h3>
                     <p style="font-size:0.9rem; margin:8px 0; color:#bababa;">Consume an element from your chest to evolve this unit:</p>
                     <div class="promo-options" id="promo-options"></div>
                 </div>
@@ -500,7 +501,7 @@
     </div>
 
 <script>
-    // Asset Map - Using official Chess.com-style vectors
+    // Asset Map - High quality chess assets
     const pieceAssets = {
         'P': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
         'R': 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
@@ -527,14 +528,13 @@
     const elementMap = elementPool.reduce((acc, el) => { acc[el.id] = el; return acc; }, {});
 
     let chest = JSON.parse(localStorage.getItem('pawn_rng_chest_v4')) || {
-        bread: 1, // Start with one to let them try it out
+        bread: 1, // Let them test an evolution early!
         water: 0,
         lava: 0,
         tornado: 0,
         titanium: 0
     };
 
-    // Traditional Starting Board
     let board = [
         ['r','n','b','q','k','b','n','r'],
         ['p','p','p','p','p','p','p','p'],
@@ -547,7 +547,7 @@
     ];
 
     let specialBoardState = Array(64).fill(null); 
-    let boardHazards = {}; // tracks { index: { type, remainingTurns } }
+    let boardHazards = {}; 
     let selectedTileIndex = null;
     let validMoves = [];
     let isSpinning = false;
@@ -592,7 +592,6 @@
         track.innerHTML = `<div class="ticker-item">❓</div>`;
     }
 
-    // RNG Roller execution
     function triggerPawnCaptureRoll() {
         if (isSpinning) return;
         isSpinning = true;
@@ -635,7 +634,7 @@
 
         let animationFrameId;
         const startTime = performance.now();
-        const duration = 2500; // Faster, punchier spin
+        const duration = 2500; 
 
         function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
@@ -673,7 +672,6 @@
         animate();
     }
 
-    // Chessboard Render
     function renderBoard() {
         const boardUI = document.getElementById("board-ui");
         boardUI.innerHTML = "";
@@ -686,7 +684,6 @@
             const tile = document.createElement("div");
             tile.className = `tile ${ (row + col) % 2 === 0 ? 'light' : 'dark' }`;
             
-            // Piece Graphic Elements
             if (piece !== '') {
                 tile.classList.add("has-piece");
                 const img = document.createElement("img");
@@ -694,7 +691,6 @@
                 img.className = "piece-img";
                 tile.appendChild(img);
 
-                // Add Upgraded Elemental Badge
                 if (specialBoardState[i]) {
                     const badge = document.createElement("div");
                     badge.className = "upgraded-emoji";
@@ -703,7 +699,6 @@
                 }
             }
 
-            // Hazards
             if (boardHazards[i]) {
                 tile.classList.add(boardHazards[i].type);
             }
@@ -751,7 +746,6 @@
         const activePiece = board[fromRow][fromCol];
         const targetPiece = board[toRow][toCol];
 
-        // Trigger RNG on capturing any piece with a pawn
         if (activePiece === 'P' && targetPiece !== '') {
             triggerPawnCaptureRoll();
         }
@@ -763,13 +757,11 @@
             return;
         }
 
-        // Apply Upgraded Power Execution
         const isSpecialPawn = specialBoardState[fromIdx];
         if (isSpecialPawn) {
             executeSpecialPawnAction(isSpecialPawn, fromIdx, toIdx);
         }
 
-        // Standard Movement Execution
         board[toRow][toCol] = activePiece;
         board[fromRow][fromCol] = '';
 
@@ -779,7 +771,6 @@
         selectedTileIndex = null;
         validMoves = [];
 
-        // Evolve/Promote at Row 0 (far end for White)
         if (activePiece === 'P' && toRow === 0) {
             triggerPawnPromotion(toIdx);
             return;
@@ -924,7 +915,6 @@
         setTimeout(botTurn, 800);
     }
 
-    // Rules Evaluation Engine
     function getValidMoves(idx) {
         const r = Math.floor(idx / 8);
         const c = idx % 8;
@@ -933,22 +923,19 @@
 
         const isUpgraded = specialBoardState[idx] !== null;
 
-        if (p === 'P') { // White Pawn
-            // Forward Moves
+        if (p === 'P') { 
             if (r > 0 && board[r-1][c] === '') {
                 moves.push((r-1)*8 + c);
                 if (r === 6 && board[r-2][c] === '') {
                     moves.push((r-2)*8 + c);
                 }
             }
-            // UPGRADED PAWNS CAN MOVE BACKWARDS! (Allows moving 1 step backward if empty)
             if (isUpgraded && r < 7 && board[r+1][c] === '') {
                 moves.push((r+1)*8 + c);
             }
 
-            // Standard Diagonal Captures (and backward captures if upgraded)
             const forwardRows = [r-1];
-            if (isUpgraded) forwardRows.push(r+1); // Bidirectional capture
+            if (isUpgraded) forwardRows.push(r+1); 
 
             forwardRows.forEach(nr => {
                 if (nr >= 0 && nr < 8) {
@@ -963,7 +950,7 @@
                 }
             });
         } 
-        else if (p === 'p') { // Black Pawn (Bot)
+        else if (p === 'p') { 
             if (r < 7 && board[r+1][c] === '') {
                 moves.push((r+1)*8 + c);
                 if (r === 1 && board[r+2][c] === '') {
@@ -1053,12 +1040,9 @@
             });
         }
 
-        // Filter out environmental hazard positions
         return moves.filter(idx => !boardHazards[idx]);
     }
 
-    // SMART BOT DECISION BRAIN
-    // Moves prioritized by captures first, then standard defensive path finding
     function botTurn() {
         const blackPieces = [];
         for (let r = 0; r < 8; r++) {
@@ -1084,20 +1068,16 @@
 
         const pieceWeights = { 'P': 10, 'N': 30, 'B': 30, 'R': 50, 'Q': 90, 'K': 900 };
 
-        // Evaluate all legal options for captures first (Smart Defense)
         for (let pieceInfo of blackPieces) {
             for (let targetIndex of pieceInfo.moves) {
                 const targetPiece = board[Math.floor(targetIndex / 8)][targetIndex % 8];
                 let value = 0;
 
-                // Priority 1: Captures
                 if (targetPiece !== '') {
                     value += pieceWeights[targetPiece.toUpperCase()] || 10;
-                    // Extra value if capturing player's special upgraded pawn!
                     if (specialBoardState[targetIndex]) value += 50;
                 }
 
-                // Priority 2: Standard Pawn pushes forward
                 if (pieceInfo.piece === 'p') {
                     value += 2; 
                 }
@@ -1109,7 +1089,6 @@
             }
         }
 
-        // Fallback to random if no capturing moves available
         if (!chosenMove || highestValue <= 2) {
             const choice = blackPieces[Math.floor(Math.random() * blackPieces.length)];
             chosenMove = {
@@ -1123,7 +1102,6 @@
         const tRow = Math.floor(chosenMove.to / 8);
         const tCol = chosenMove.to % 8;
 
-        // Execute Bot Move
         board[tRow][tCol] = board[fRow][fCol];
         board[fRow][fCol] = '';
 
@@ -1131,7 +1109,7 @@
         renderBoard();
 
         turn = 'white';
-        document.getElementById("turn-banner").innerText = "⚪ Your turn! Select a piece to see Chess.com hint dots.";
+        document.getElementById("turn-banner").innerText = "⚪ Your turn! Select a piece to see move indicator dots.";
     }
 </script>
 
