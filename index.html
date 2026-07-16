@@ -5,107 +5,597 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pawn RNG</title>
     <style>
+        /* Professional Base Styling */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #121212;
-            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin: 0 0 5px 0;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            color: #888888;
+            font-size: 0.95rem;
+            margin: 0 0 25px 0;
+        }
+
+        /* 3-Column Game Layout for Tablet/Desktop Landscape */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            -webkit-tap-highlight-color: transparent; /* Smooth touch for iPad */
         }
-        .container {
+
+        @media (min-width: 900px) {
+            .game-container {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+        }
+
+        /* Side Panels & Center Board */
+        .panel {
+            background-color: #1e1e1e;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 20px;
+            box-sizing: border-box;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .center-board-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1.2;
+        }
+
+        /* LEFT PANEL: SPINNING RNG WHEEL */
+        .rng-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
-            background: #1e1e1e;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-            border: 2px solid #333;
-            max-width: 90%;
-            width: 400px;
         }
-        button {
-            background: #ff4757;
-            color: white;
+
+        .spin-button {
+            background-color: #ff4757;
+            color: #ffffff;
             border: none;
-            padding: 15px 30px;
-            font-size: 1.2rem;
+            padding: 14px;
+            font-size: 1.1rem;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            transition: 0.2s ease;
             width: 100%;
-            box-sizing: border-box;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+            margin-bottom: 25px;
         }
-        button:hover, button:active {
-            transform: scale(1.02);
-            background: #ff6b81;
+
+        .spin-button:disabled {
+            background-color: #555555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
-        #result {
-            margin-top: 25px;
-            font-size: 2.2rem;
-            font-weight: bold;
-            min-height: 60px;
+
+        .spin-button:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        /* The Spinning Tape Window */
+        .ticker-viewport {
+            position: relative;
+            width: 100%;
+            max-width: 260px;
+            height: 80px;
+            background-color: #151515;
+            border: 2px solid #3d3d3d;
+            border-radius: 8px;
+            overflow: hidden; /* Cuts off items outside the box */
+            margin-bottom: 15px;
+        }
+
+        /* Vertical Center Aiming Line */
+        .ticker-pointer {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #ff4757;
+            transform: translateX(-50%);
+            z-index: 10;
+            box-shadow: 0 0 8px #ff4757;
+            pointer-events: none;
+        }
+
+        /* The actual sliding track holding the items */
+        .ticker-track {
+            display: flex;
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            will-change: transform;
+        }
+
+        .ticker-item {
+            width: 80px; /* Exact square size */
+            height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 2.2rem;
+            box-sizing: border-box;
+            border-right: 1px solid #252525;
+            background-color: #1a1a1a;
+            user-select: none;
         }
-        .rarity {
+
+        .ticker-item:last-child {
+            border-right: none;
+        }
+
+        /* Real-Time Name Indicator under ticker */
+        .ticker-label-box {
             font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            color: #aaaaaa;
             margin-top: 5px;
+            min-height: 24px;
             font-weight: 600;
+        }
+
+        #pawn-name-display {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-top: 5px;
+            min-height: 35px;
+            transition: color 0.2s;
+        }
+
+        /* CENTER PANEL: THE CHESSBOARD */
+        .board-instructions {
+            font-size: 0.85rem;
+            color: #888888;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .chessboard {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            width: 320px;
+            height: 320px;
+            border: 3px solid #333333;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        @media (min-width: 480px) {
+            .chessboard {
+                width: 360px;
+                height: 360px;
+            }
+        }
+
+        .tile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tile.light {
+            background-color: #e0d4b8;
+        }
+
+        .tile.dark {
+            background-color: #8b7355;
+        }
+
+        .tile:hover {
+            opacity: 0.85;
+        }
+
+        .clear-button {
+            background-color: #2b2b2b;
+            color: #bbbbbb;
+            border: 1px solid #444444;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .clear-button:hover {
+            background-color: #3d3d3d;
+            color: #ffffff;
+        }
+
+        /* RIGHT PANEL: THE CHEST */
+        .chest-header {
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chest-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chest-item {
+            background-color: #252525;
+            border: 1px solid #3e3e3e;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .chest-item:hover, .chest-item.selected {
+            border-color: #ff4757;
+            background-color: #2a1f21;
+        }
+
+        .chest-item.selected {
+            box-shadow: 0 0 6px rgba(255, 71, 87, 0.4);
+        }
+
+        .item-quantity {
+            background-color: #3a3a3a;
+            color: #ffffff;
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 12px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>🎰 Pawn RNG 🎰</h2>
-    <p>Roll to unlock your custom chess pawns, styll!</p>
-    <button onclick="rollPawn()">ROLL NOW</button>
-    <div id="result">---</div>
-    <div id="rarity-label" class="rarity"></div>
-</div>
+    <h1>Pawn RNG</h1>
+    <p class="subtitle">Roll pawns, save them to your chest, and deploy them on the board</p>
+
+    <div class="game-container">
+        
+        <!-- LEFT COLUMN: THE KINETIC RNG TICKER -->
+        <div class="panel">
+            <div class="rng-container">
+                <button class="spin-button" id="roll-button" onclick="startRoll()">ROLL PAWN</button>
+                
+                <div class="ticker-viewport">
+                    <div class="ticker-pointer"></div>
+                    <div class="ticker-track" id="ticker-track">
+                        <!-- Ticker elements generated dynamically by JS -->
+                    </div>
+                </div>
+
+                <div class="ticker-label-box">ROLLED PAWN:</div>
+                <div id="pawn-name-display">---</div>
+            </div>
+        </div>
+
+        <!-- CENTER COLUMN: CHESSBOARD -->
+        <div class="panel center-board-panel">
+            <div class="board-instructions">
+                Select a pawn from your Chest on the right, then tap any tile on the board to place it. Tap a placed pawn to remove it.
+            </div>
+            <div class="chessboard" id="board-ui">
+                <!-- Generated dynamically by JS -->
+            </div>
+            <button class="clear-button" onclick="clearBoard()">Clear Chessboard</button>
+        </div>
+
+        <!-- RIGHT COLUMN: THE CHEST (INVENTORY) -->
+        <div class="panel">
+            <div class="chest-header">
+                <span>🧰 Chest Inventory</span>
+            </div>
+            <div class="chest-grid" id="chest-ui">
+                <!-- Loaded dynamically by JS -->
+            </div>
+        </div>
+
+    </div>
 
 <script>
-    // 1. Define the pawns, their drop rates, and their colors
+    // 1. Pawn Configuration Database
     const pawnPool = [
-        { name: "🍞 Bread Pawn", rarity: "Common (50%)", weight: 50, color: "#d2b48c" },
-        { name: "💧 Water Pawn", rarity: "Uncommon (25%)", weight: 25, color: "#3498db" },
-        { name: "🌪️ Tornado Pawn", rarity: "Rare (15%)", weight: 15, color: "#9b59b6" },
-        { name: "🔥 Lava Pawn", rarity: "Epic (9%)", weight: 9, color: "#e74c3c" },
-        { name: "🐦 Seagull Pawn", rarity: "LEGENDARY (1%)", weight: 1, color: "#f1c40f" }
+        { id: 'bread', name: "Bread", emoji: "🍞", weight: 50, color: "#d2b48c", rarity: "Common" },
+        { id: 'water', name: "Water", emoji: "💧", weight: 25, color: "#3498db", rarity: "Uncommon" },
+        { id: 'tornado', name: "Tornado", emoji: "🌪️", weight: 15, color: "#9b59b6", rarity: "Rare" },
+        { id: 'lava', name: "Lava", emoji: "🔥", weight: 9, color: "#e74c3c", rarity: "Epic" },
+        { id: 'seagull', name: "Seagull", emoji: "🐦", weight: 1, color: "#f1c40f", rarity: "Legendary" }
     ];
 
-    function rollPawn() {
-        // 2. Generate a random number between 1 and 100
-        let roll = Math.floor(Math.random() * 100) + 1;
-        let cumulativeWeight = 0;
-        let selectedPawn = null;
+    // Convert array to quick lookup map
+    const pawnMap = pawnPool.reduce((acc, pawn) => {
+        acc[pawn.id] = pawn;
+        return acc;
+    }, {});
 
-        // 3. Run the RNG math loop
+    // 2. State Variables
+    let chest = JSON.parse(localStorage.getItem('pawn_rng_chest_v2')) || {
+        bread: 0,
+        water: 0,
+        tornado: 0,
+        lava: 0,
+        seagull: 0
+    };
+
+    let selectedPawnId = null;
+    let boardState = Array(64).fill(null);
+    let isSpinning = false;
+
+    // Constants for the Ticker physics
+    const TICKER_ITEM_WIDTH = 80; // matches CSS width
+    const TICKER_VIEWPORT_WIDTH = 260; // matches CSS width
+    const TICKER_CENTER_OFFSET = TICKER_VIEWPORT_WIDTH / 2;
+
+    // 3. Page Load Setup
+    window.addEventListener('DOMContentLoaded', () => {
+        updateChestUI();
+        buildChessboard();
+        initializeTickerTrack();
+    });
+
+    // 4. RNG Weight Calculation
+    function getRandomPawn() {
+        const roll = Math.floor(Math.random() * 100) + 1;
+        let cumulativeWeight = 0;
         for (let pawn of pawnPool) {
             cumulativeWeight += pawn.weight;
             if (roll <= cumulativeWeight) {
-                selectedPawn = pawn;
-                break;
+                return pawn;
+            }
+        }
+        return pawnPool[0]; // Fallback
+    }
+
+    // 5. Setup Static Ticker View prior to Spin
+    function initializeTickerTrack() {
+        const track = document.getElementById("ticker-track");
+        track.style.transition = "none";
+        // Position track to place the first item index under the pointer
+        const initialOffset = TICKER_CENTER_OFFSET - (TICKER_ITEM_WIDTH / 2);
+        track.style.transform = `translateX(${initialOffset}px)`;
+        
+        // Populate track with 1 visual default item
+        track.innerHTML = `<div class="ticker-item">❓</div>`;
+        document.getElementById("pawn-name-display").innerText = "Roll to begin";
+        document.getElementById("pawn-name-display").style.color = "#888888";
+    }
+
+    // 6. Main Kinetic Rolling Engine
+    function startRoll() {
+        if (isSpinning) return;
+        isSpinning = true;
+
+        const rollButton = document.getElementById("roll-button");
+        const track = document.getElementById("ticker-track");
+        const nameDisplay = document.getElementById("pawn-name-display");
+
+        rollButton.disabled = true;
+
+        // Reset track positioning
+        track.style.transition = "none";
+        track.style.transform = `translateX(${TICKER_CENTER_OFFSET}px)`;
+        track.innerHTML = "";
+
+        // Build a dynamic array of items for the spin sequence (approx 50 items)
+        const sequenceCount = 50;
+        const sequenceList = [];
+        
+        for (let i = 0; i < sequenceCount; i++) {
+            // Populate randomly, but make the absolute final index the true selected roll
+            sequenceList.push(getRandomPawn());
+        }
+
+        const winningPawn = sequenceList[sequenceCount - 3]; // Win target is near the end for buffering room
+
+        // Create DOM elements on the track
+        sequenceList.forEach((pawn) => {
+            const itemElement = document.createElement("div");
+            itemElement.className = "ticker-item";
+            itemElement.innerText = pawn.emoji;
+            track.appendChild(itemElement);
+        });
+
+        // Calculations for exact targeted sliding physics
+        const winIndex = sequenceCount - 3;
+        const targetOffset = TICKER_CENTER_OFFSET - (winIndex * TICKER_ITEM_WIDTH) - (TICKER_ITEM_WIDTH / 2);
+
+        // Realtime tracker tracking the slide and updating the name display as items cross the pointer
+        let animationFrameId;
+        const startTime = performance.now();
+        const duration = 4000; // 4 seconds spin time
+
+        // Cubic Easing Out function for natural decelerating spin
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
+
+        function animateTrack() {
+            const now = performance.now();
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easedProgress = easeOutCubic(progress);
+
+            const currentPosition = TICKER_CENTER_OFFSET - (easedProgress * (TICKER_CENTER_OFFSET - targetOffset));
+            track.style.transform = `translateX(${currentPosition}px)`;
+
+            // Calculate which index is currently passing the center line
+            const relativePosition = TICKER_CENTER_OFFSET - currentPosition;
+            const activeIndex = Math.max(0, Math.floor(relativePosition / TICKER_ITEM_WIDTH));
+
+            if (activeIndex < sequenceList.length) {
+                const currentPassingPawn = sequenceList[activeIndex];
+                nameDisplay.innerText = `${currentPassingPawn.emoji} ${currentPassingPawn.name}`;
+                nameDisplay.style.color = currentPassingPawn.color;
+            }
+
+            if (progress < 1) {
+                animationFrameId = requestAnimationFrame(animateTrack);
+            } else {
+                cancelAnimationFrame(animationFrameId);
+                finalizeRoll(winningPawn);
             }
         }
 
-        // 4. Update the screen
-        const resultDiv = document.getElementById("result");
-        const rarityDiv = document.getElementById("rarity-label");
-
-        resultDiv.innerText = selectedPawn.name;
-        resultDiv.style.color = selectedPawn.color;
+        // Fire CSS animations and tracking calculations
+        track.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.8, 0.1, 1)`;
+        track.style.transform = `translateX(${targetOffset}px)`;
         
-        rarityDiv.innerText = selectedPawn.rarity;
-        rarityDiv.style.color = selectedPawn.color;
+        // Start tracking frame to update active text matching the icon passing the pointer
+        animateTrack();
+    }
+
+    function finalizeRoll(winningPawn) {
+        isSpinning = false;
+        document.getElementById("roll-button").disabled = false;
+
+        // Save winning item to chest
+        chest[winningPawn.id]++;
+        localStorage.setItem('pawn_rng_chest_v2', JSON.stringify(chest));
+
+        // Highlight selected text
+        const nameDisplay = document.getElementById("pawn-name-display");
+        nameDisplay.innerText = `${winningPawn.emoji} ${winningPawn.name} (${winningPawn.rarity})`;
+        nameDisplay.style.color = winningPawn.color;
+
+        updateChestUI();
+    }
+
+    // 7. Update Chest Inventory UI
+    function updateChestUI() {
+        const grid = document.getElementById("chest-ui");
+        grid.innerHTML = "";
+
+        pawnPool.forEach((pawn) => {
+            const qty = chest[pawn.id];
+            const item = document.createElement("div");
+            item.className = "chest-item";
+            
+            if (selectedPawnId === pawn.id) {
+                item.className += " selected";
+            }
+
+            if (qty > 0) {
+                item.onclick = () => selectPawn(pawn.id);
+            } else {
+                item.style.opacity = "0.35";
+                item.style.cursor = "default";
+            }
+
+            item.innerHTML = `
+                <span style="color: ${pawn.color}; font-weight: bold;">${pawn.emoji} ${pawn.name}</span>
+                <span class="item-quantity">${qty}</span>
+            `;
+            grid.appendChild(item);
+        });
+    }
+
+    function selectPawn(pawnId) {
+        if (chest[pawnId] <= 0) return;
+        selectedPawnId = (selectedPawnId === pawnId) ? null : pawnId;
+        updateChestUI();
+    }
+
+    // 8. Board Layout Generator
+    function buildChessboard() {
+        const board = document.getElementById("board-ui");
+        board.innerHTML = "";
+
+        for (let i = 0; i < 64; i++) {
+            const tile = document.createElement("div");
+            const row = Math.floor(i / 8);
+            const col = i % 8;
+            const isLight = (row + col) % 2 === 0;
+
+            tile.className = `tile ${isLight ? 'light' : 'dark'}`;
+            
+            if (boardState[i]) {
+                tile.innerText = pawnMap[boardState[i]].emoji;
+            }
+
+            tile.onclick = () => handleTileClick(i);
+            board.appendChild(tile);
+        }
+    }
+
+    function handleTileClick(index) {
+        // Remove item from Board and return to Chest
+        if (boardState[index]) {
+            const removedId = boardState[index];
+            boardState[index] = null;
+            chest[removedId]++;
+            localStorage.setItem('pawn_rng_chest_v2', JSON.stringify(chest));
+            
+            buildChessboard();
+            updateChestUI();
+            return;
+        }
+
+        // Place selected item from Chest to Board
+        if (selectedPawnId && chest[selectedPawnId] > 0) {
+            boardState[index] = selectedPawnId;
+            chest[selectedPawnId]--;
+            localStorage.setItem('pawn_rng_chest_v2', JSON.stringify(chest));
+
+            if (chest[selectedPawnId] <= 0) {
+                selectedPawnId = null;
+            }
+
+            buildChessboard();
+            updateChestUI();
+        }
+    }
+
+    function clearBoard() {
+        for (let i = 0; i < 64; i++) {
+            if (boardState[i]) {
+                chest[boardState[i]]++;
+            }
+        }
+        boardState.fill(null);
+        localStorage.setItem('pawn_rng_chest_v2', JSON.stringify(chest));
+        selectedPawnId = null;
+        buildChessboard();
+        updateChestUI();
     }
 </script>
 
