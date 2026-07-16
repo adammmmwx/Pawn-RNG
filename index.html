@@ -37,7 +37,7 @@
 
         /* 3-Column Game Layout */
         .game-container {
-            display: flex;
+            display: none; /* Controlled by JS Game State */
             flex-direction: column;
             gap: 20px;
             width: 100%;
@@ -47,6 +47,7 @@
 
         @media (min-width: 900px) {
             .game-container {
+                display: none;
                 flex-direction: row;
                 align-items: flex-start;
             }
@@ -239,15 +240,6 @@
             pointer-events: none;
         }
 
-        .upgraded-emoji {
-            font-size: 1.8rem;
-            z-index: 4;
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
-        }
-
         /* Environmental Hazards */
         .tile.water::after {
             content: "";
@@ -313,8 +305,8 @@
             border-radius: 12px;
         }
 
-        /* TUTORIAL MODAL */
-        .modal-overlay {
+        /* MENUS & MODALS */
+        .screen-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background-color: rgba(10, 10, 10, 0.95);
@@ -325,22 +317,22 @@
             padding: 20px;
         }
 
-        .tutorial-box {
+        .menu-box {
             background-color: #2b2522;
             border: 2px solid #800020;
             border-radius: 8px;
             max-width: 550px;
             width: 100%;
-            padding: 30px;
+            padding: 35px;
             box-sizing: border-box;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
-        .tutorial-box h2 {
-            font-size: 2.2rem;
-            color: #f5f2eb;
+        .menu-box h2 {
+            font-size: 2.5rem;
             margin-top: 0;
+            letter-spacing: 1px;
         }
 
         .rules-list {
@@ -355,7 +347,7 @@
             margin-bottom: 12px;
         }
 
-        .play-button {
+        .menu-button {
             background-color: #800020;
             color: #ffffff;
             border: none;
@@ -365,13 +357,17 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
+            width: 100%;
+            max-width: 300px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .play-button:hover {
+        .menu-button:hover {
             background-color: #9a0028;
         }
 
-        .play-button:active {
+        .menu-button:active {
             transform: scale(0.97);
         }
 
@@ -437,22 +433,23 @@
 </head>
 <body>
 
-    <!-- TUTORIAL SCREEN -->
-    <div class="modal-overlay" id="tutorial-modal">
-        <div class="tutorial-box">
+    <div class="screen-overlay" id="main-menu">
+        <div class="menu-box">
             <h2 style="color: #800020;">♟️ Pawn RNG</h2>
-            <p style="color: #bababa;">Capture pieces with pawns, unlock rolls, and break standard rules.</p>
-            <ul class="rules-list">
-                <li>⚔️ **Capture to Spin:** Play tactical chess against the smart bot. When any of your **White Pawns capture an enemy piece**, the RNG wheel spins!</li>
-                <li>🔄 **Move Backwards:** Upgraded elemental pawns are liberated! They can move **both forward and backward** to prevent getting stuck at the walls.</li>
-                <li>🧬 **Promotion Evolution:** Promote a pawn at Row 8 using stored elements in your Chest to spawn special units directly on the board.</li>
-                <li>🔥 **Overhauled Elements:** Spawn Bread (Seagull steal), Water trails, blocking Lava, shaking Titanium, or area-denying Tornados.</li>
-            </ul>
-            <button class="play-button" onclick="closeTutorial()">PLAY FIRST GAME</button>
+            <p style="color: #bababa; margin-bottom: 25px;">Capture pieces, spin the engine, and unleash elemental pawns.</p>
+            <button class="menu-button" onclick="startGame()">START GAME</button>
+            <p style="font-size: 0.8rem; color: #5a524e; margin-top: 20px;">v4.1.0 • Authored by Adammmmwx</p>
         </div>
     </div>
 
-    <!-- SEAGULL LAYER -->
+    <div class="screen-overlay" id="game-over-screen" style="display: none;">
+        <div class="menu-box">
+            <h2 id="game-over-title" style="color: #800020;">GAME OVER</h2>
+            <p id="game-over-sub" style="color: #bababa; margin-bottom: 25px;"></p>
+            <button class="menu-button" onclick="returnToMenu()">MAIN MENU</button>
+        </div>
+    </div>
+
     <div class="seagull-overlay" id="gull-layer">
         <div class="seagull-sprite" id="gull-sprite">🐦</div>
     </div>
@@ -460,9 +457,8 @@
     <h1>Pawn RNG</h1>
     <p class="subtitle">Capture enemy pieces using White pawns to earn elemental powers!</p>
 
-    <div class="game-container">
+    <div class="game-container" id="game-arena">
         
-        <!-- LEFT PANEL: THE SPINNER -->
         <div class="panel">
             <div class="rng-container">
                 <div class="ticker-viewport">
@@ -474,7 +470,6 @@
             </div>
         </div>
 
-        <!-- CENTER PANEL: CHESSBOARD -->
         <div class="panel center-board-panel">
             <div class="board-instructions" id="turn-banner">
                 ⚪ Your turn! Select a piece to see move indicator dots.
@@ -483,7 +478,6 @@
             <div class="chessboard-wrapper">
                 <div class="chessboard" id="board-ui"></div>
                 
-                <!-- PROMOTION SELECTION MODAL -->
                 <div class="promo-overlay" id="promo-overlay">
                     <h3 style="margin:0; font-size:1.2rem; color:#800020;">Promote & Evolve Pawn!</h3>
                     <p style="font-size:0.9rem; margin:8px 0; color:#bababa;">Consume an element from your chest to evolve this unit:</p>
@@ -492,7 +486,6 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL: CHEST INVENTORY -->
         <div class="panel">
             <div class="chest-header">🧰 Your Chest</div>
             <div class="chest-grid" id="chest-ui"></div>
@@ -501,7 +494,13 @@
     </div>
 
 <script>
-    // Asset Map - High quality chess assets
+    // GitHub configuration for Custom Element Sprites (Adammmmwx)
+    const GITHUB_USER = "Adammmmwx";
+    const GITHUB_REPO = "Pawn-RNG";
+    const GITHUB_BRANCH = "main";
+    const ASSET_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/`;
+
+    // Fallback Vector Chess Pieces
     const pieceAssets = {
         'P': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg',
         'R': 'https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg',
@@ -528,31 +527,22 @@
     const elementMap = elementPool.reduce((acc, el) => { acc[el.id] = el; return acc; }, {});
 
     let chest = JSON.parse(localStorage.getItem('pawn_rng_chest_v4')) || {
-        bread: 1, // Let them test an evolution early!
+        bread: 1, 
         water: 0,
         lava: 0,
         tornado: 0,
         titanium: 0
     };
 
-    let board = [
-        ['r','n','b','q','k','b','n','r'],
-        ['p','p','p','p','p','p','p','p'],
-        ['','','','','','','',''],
-        ['','','','','','','',''],
-        ['','','','','','','',''],
-        ['','','','','','','',''],
-        ['P','P','P','P','P','P','P','P'],
-        ['R','N','B','Q','K','B','N','R']
-    ];
-
-    let specialBoardState = Array(64).fill(null); 
+    let board = [];
+    let specialBoardState = [];
     let boardHazards = {}; 
     let selectedTileIndex = null;
     let validMoves = [];
     let isSpinning = false;
     let promoPendingIndex = null;
     let turn = 'white'; 
+    let gameActive = false;
 
     const TICKER_ITEM_WIDTH = 80;
     const TICKER_VIEWPORT_WIDTH = 260;
@@ -560,12 +550,58 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         updateChestUI();
-        renderBoard();
         initializeTickerTrack();
     });
 
-    function closeTutorial() {
-        document.getElementById("tutorial-modal").style.display = "none";
+    function startGame() {
+        document.getElementById("main-menu").style.display = "none";
+        document.getElementById("game-over-screen").style.display = "none";
+        document.getElementById("game-arena").style.display = "flex";
+        
+        // Reset Board state
+        board = [
+            ['r','n','b','q','k','b','n','r'],
+            ['p','p','p','p','p','p','p','p'],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['','','','','','','',''],
+            ['P','P','P','P','P','P','P','P'],
+            ['R','N','B','Q','K','B','N','R']
+        ];
+        specialBoardState = Array(64).fill(null);
+        boardHazards = {};
+        selectedTileIndex = null;
+        validMoves = [];
+        turn = 'white';
+        gameActive = true;
+
+        document.getElementById("turn-banner").innerText = "⚪ Your turn! Select a piece to see move indicator dots.";
+        renderBoard();
+    }
+
+    function endGame(winner) {
+        gameActive = false;
+        document.getElementById("game-arena").style.display = "none";
+        document.getElementById("game-over-screen").style.display = "flex";
+
+        const title = document.getElementById("game-over-title");
+        const sub = document.getElementById("game-over-sub");
+
+        if (winner === 'white') {
+            title.innerText = "🏆 VICTORY";
+            title.style.color = "#d4af37"; // Gold
+            sub.innerText = "You completely cleared out the bot. Absolute masterclass, styll!";
+        } else {
+            title.innerText = "💀 DEFEAT";
+            title.style.color = "#800020"; // Burgundy
+            sub.innerText = "The bot got the best of you this time. Dust yourself off and run it back!";
+        }
+    }
+
+    function returnToMenu() {
+        document.getElementById("game-over-screen").style.display = "none";
+        document.getElementById("main-menu").style.display = "flex";
     }
 
     function updateChestUI() {
@@ -687,16 +723,17 @@
             if (piece !== '') {
                 tile.classList.add("has-piece");
                 const img = document.createElement("img");
-                img.src = pieceAssets[piece];
                 img.className = "piece-img";
-                tile.appendChild(img);
 
-                if (specialBoardState[i]) {
-                    const badge = document.createElement("div");
-                    badge.className = "upgraded-emoji";
-                    badge.innerText = elementMap[specialBoardState[i]].emoji;
-                    tile.appendChild(badge);
+                const isUpgraded = specialBoardState[i];
+                if (isUpgraded) {
+                    const colorSuffix = (piece === piece.toUpperCase()) ? "white" : "black";
+                    img.src = `${ASSET_BASE_URL}${isUpgraded}-${colorSuffix}.png`;
+                } else {
+                    img.src = pieceAssets[piece];
                 }
+                
+                tile.appendChild(img);
             }
 
             if (boardHazards[i]) {
@@ -712,7 +749,7 @@
     }
 
     function handleTileClick(row, col, index) {
-        if (turn !== 'white') return;
+        if (turn !== 'white' || !gameActive) return;
 
         const piece = board[row][col];
 
@@ -735,6 +772,28 @@
                 renderBoard();
             }
         }
+    }
+
+    function checkForWin() {
+        let whiteKing = false;
+        let blackKing = false;
+
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                if (board[r][c] === 'K') whiteKing = true;
+                if (board[r][c] === 'k') blackKing = true;
+            }
+        }
+
+        if (!whiteKing) {
+            endGame('black');
+            return true;
+        }
+        if (!blackKing) {
+            endGame('white');
+            return true;
+        }
+        return false;
     }
 
     function executeMove(fromIdx, toIdx) {
@@ -770,6 +829,8 @@
 
         selectedTileIndex = null;
         validMoves = [];
+
+        if (checkForWin()) return;
 
         if (activePiece === 'P' && toRow === 0) {
             triggerPawnPromotion(toIdx);
@@ -816,6 +877,7 @@
             board[row][col] = '';
             specialBoardState[idx] = null;
             renderBoard();
+            checkForWin();
         }, 900);
 
         setTimeout(() => { gullLayer.style.display = "none"; }, 1800);
@@ -1019,7 +1081,7 @@
             const offsets = [[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]];
             offsets.forEach(([dr, dc]) => {
                 const nr = r + dr, nc = c + dc;
-                if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                if (nr >= 0 && nr < 8 && nc >= 8) {
                     const target = board[nr][nc];
                     if (target === '' || (p === 'N' && target === target.toLowerCase()) || (p === 'n' && target === target.toUpperCase())) {
                         moves.push(nr*8 + nc);
@@ -1044,6 +1106,8 @@
     }
 
     function botTurn() {
+        if (!gameActive) return;
+
         const blackPieces = [];
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
@@ -1059,7 +1123,7 @@
         }
 
         if (blackPieces.length === 0) {
-            document.getElementById("turn-banner").innerText = "🏆 Checkmate/Stalemate! You Win!";
+            endGame('white');
             return;
         }
 
@@ -1107,6 +1171,8 @@
 
         tickHazards();
         renderBoard();
+
+        if (checkForWin()) return;
 
         turn = 'white';
         document.getElementById("turn-banner").innerText = "⚪ Your turn! Select a piece to see move indicator dots.";
